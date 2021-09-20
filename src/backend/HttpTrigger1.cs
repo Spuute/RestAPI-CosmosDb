@@ -13,38 +13,73 @@ namespace lesson05
     public static class restapi
     {
         [FunctionName("HttpExample")]
-public static async Task<IActionResult> Run(
-    [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-    [CosmosDB(
+        public static async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
         ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> documentsOut,
-    ILogger log)
-{
-    log.LogInformation("C# HTTP trigger function processed a request.");
-
-    string name = req.Query["name"];
-
-    string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-    dynamic data = JsonConvert.DeserializeObject(requestBody);
-    name = name ?? data?.name;
-
-    if (!string.IsNullOrEmpty(name))
-    {
-        // Add a JSON document to the output container.
-        await documentsOut.AddAsync(new
+        ILogger log)
         {
-            // create a random ID
-            id = System.Guid.NewGuid().ToString(),
-            name = name
-        });
-    }
+            log.LogInformation("C# HTTP trigger function processed a request.");
 
-    string responseMessage = string.IsNullOrEmpty(name)
+            string name = req.Query["name"];
+
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            name = name ?? data?.name;
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                // Add a JSON document to the output container.
+                await documentsOut.AddAsync(new
+                {
+                    // create a random ID
+                    id = System.Guid.NewGuid().ToString(),
+                    name = name
+                });
+        }
+
+        string responseMessage = string.IsNullOrEmpty(name)
         ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
         : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
-    return new OkObjectResult(responseMessage);
-}
+        return new OkObjectResult(responseMessage);
+        }
+
+        [FunctionName("Testing")]
+        public static async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        [CosmosDB(
+        databaseName: "mydb",
+        collectionName: "myfirstcontainer",
+        ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> documentsOut,
+        ILogger log)
+        {
+            log.LogInformation("C# HTTP trigger function processed a request.");
+
+            string name = req.Query["name"];
+
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
+            name = name ?? data?.name;
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                // Add a JSON document to the output container.
+                await documentsOut.AddAsync(new
+                {
+                    // create a random ID
+                    id = System.Guid.NewGuid().ToString(),
+                    name = name
+                });
+        }
+
+        string responseMessage = string.IsNullOrEmpty(name)
+        ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+        : $"nejdu nu ljuger du, {name}. This HTTP triggered function executed successfully.";
+
+        return new OkObjectResult(responseMessage);
+        }
     }
 }
