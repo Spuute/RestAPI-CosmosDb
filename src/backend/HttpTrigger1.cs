@@ -13,8 +13,8 @@ namespace lesson05
     public static class restapi
     {
         [FunctionName("HttpExample")]
-        public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> Test(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
@@ -39,6 +39,7 @@ namespace lesson05
                     name = name
                 });
         }
+        
 
         string responseMessage = string.IsNullOrEmpty(name)
         ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
@@ -47,9 +48,10 @@ namespace lesson05
         return new OkObjectResult(responseMessage);
         }
 
+        
         [FunctionName("Testing")]
-        public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> hej(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
@@ -81,5 +83,7 @@ namespace lesson05
 
         return new OkObjectResult(responseMessage);
         }
+
+
     }
 }
