@@ -55,33 +55,30 @@ namespace lesson05
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
-        ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> documentsOut,
+        ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> recipe,
         ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
-
-            if (!string.IsNullOrEmpty(name))
+            try
             {
-                // Add a JSON document to the output container.
-                await documentsOut.AddAsync(new
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+
+                var input = JsonConvert.DeserializeObject<Recipe>(requestBody);
+
+                var kuken = new Recipe
                 {
-                    // create a random ID
-                    id = System.Guid.NewGuid().ToString(),
-                    name = name
-                });
-        }
+                    Name = input.Name,
+                    test = input.test
+                };
 
-        string responseMessage = string.IsNullOrEmpty(name)
-        ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-        : $"nejdu nu ljuger du, {name}. This HTTP triggered function executed successfully.";
+                await recipe.AddAsync(kuken);
 
-        return new OkObjectResult(responseMessage);
+                return new OkObjectResult(kuken);
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"Couldn't insert item. Exception thrown: {ex.Message}");
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
         }
 
 

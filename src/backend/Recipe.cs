@@ -1,8 +1,12 @@
-namespace backend
+using Newtonsoft.Json;
+
+namespace lesson05
 {
     public class Recipe
     {
-        public int Id { get; set; }
+        //[JsonProperty(PropertyName = "isComplete")]
         public string Name { get; set; }
+
+        public int test { get; set; }
     }
 }
