@@ -64,15 +64,15 @@ namespace lesson05
 
                 var input = JsonConvert.DeserializeObject<Recipe>(requestBody);
 
-                var kuken = new Recipe
+                var newRecipe = new Recipe
                 {
                     Name = input.Name,
-                    test = input.test
+                    test = in
                 };
 
-                await recipe.AddAsync(kuken);
+                await recipe.AddAsync(newRecipe);
 
-                return new OkObjectResult(kuken);
+                return new OkObjectResult(newRecipe);
             }
             catch (Exception ex)
             {
