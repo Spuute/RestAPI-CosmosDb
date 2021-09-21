@@ -7,51 +7,34 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace lesson05
 {
     public static class restapi
     {
         [FunctionName("HttpExample")]
-        public static async Task<IActionResult> GetDish(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> GetAllDishes(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "recipes")] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
-        ConnectionStringSetting = "CosmosDbConnectionString")]IAsyncCollector<dynamic> documentsOut,
+        ConnectionStringSetting = "CosmosDbConnectionString",
+        SqlQuery = "SELECT FROM c")]IEnumerable<Recipe> recipes,
         ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
+            
+            if(recipes != null) {
+                return new OkObjectResult(recipes);
+            }
 
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                // Add a JSON document to the output container.
-                await documentsOut.AddAsync(new
-                {
-                    // create a random ID
-                    id = System.Guid.NewGuid().ToString(),
-                    name = name
-                });
-        }
-        
-
-        string responseMessage = string.IsNullOrEmpty(name)
-        ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-        : $"Hello, {name}. This HTTP triggered function executed successfully.";
-
-        return new OkObjectResult(responseMessage);
+            return new NotFoundResult();
         }
 
-        
         [FunctionName("Testing")]
-        public static async Task<IActionResult> PostDish(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> AddDish(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "recipe")] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
