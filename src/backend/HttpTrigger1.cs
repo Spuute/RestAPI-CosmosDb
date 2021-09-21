@@ -13,7 +13,7 @@ namespace lesson05
     public static class restapi
     {
         [FunctionName("HttpExample")]
-        public static async Task<IActionResult> Test(
+        public static async Task<IActionResult> GetDish(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
@@ -50,7 +50,7 @@ namespace lesson05
 
         
         [FunctionName("Testing")]
-        public static async Task<IActionResult> hej(
+        public static async Task<IActionResult> PostDish(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
