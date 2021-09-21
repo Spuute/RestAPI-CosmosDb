@@ -67,7 +67,7 @@ namespace lesson05
                 var newRecipe = new Recipe
                 {
                     Name = input.Name,
-                    test = in
+                    test = input.test
                 };
 
                 await recipe.AddAsync(newRecipe);
