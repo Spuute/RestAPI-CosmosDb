@@ -54,7 +54,40 @@ namespace lesson05
 
         }
 
+        [FunctionName("disha")]
+        public static async Task<IActionResult> GetDishes(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "recipe")] HttpRequest req,
+        [CosmosDB(
+        databaseName: "mydb",
+        collectionName: "myfirstcontainer",
+        ConnectionStringSetting = "CosmosDbConnectionString")] DocumentClient client,
+        ILogger log)
+        {
+            log.LogInformation("C# HTTP trigger function processed a request.");
 
+            // var searchterm = req.Query["searchterm"];
+            // if (string.IsNullOrWhiteSpace(searchterm))
+            // {
+            //     return (ActionResult)new NotFoundResult();
+            // }
+
+            Uri collectionUri = UriFactory.CreateDocumentCollectionUri("mydb", "myfirstcontainer");
+
+            // log.LogInformation($"Searching for: {searchterm}");
+
+            IDocumentQuery<Recipe> query = client.CreateDocumentQuery<Recipe>(collectionUri, new FeedOptions { EnableCrossPartitionQuery = true })
+                .Select(p => p).AsDocumentQuery();
+
+            while (query.HasMoreResults)
+            {
+                foreach (Recipe result in await query.ExecuteNextAsync())
+                {
+                    log.LogInformation(result.Name);
+                }
+            }
+            return new OkObjectResult(query);
+
+        }
 
         [FunctionName("AddDish")]
         public static async Task<IActionResult> AddDish(
