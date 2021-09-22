@@ -1,38 +1,62 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Documents.Linq;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using System.IO;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+
 
 namespace lesson05
 {
     public static class restapi
     {
-        [FunctionName("HttpExample")]
-        public static async Task<IActionResult> GetAllDishes(
+        [FunctionName("dish")]
+        public static async Task<IActionResult> GetDish(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "recipes")] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
-        ConnectionStringSetting = "CosmosDbConnectionString",
-        SqlQuery = "SELECT FROM c")]IEnumerable<Recipe> recipes,
+        ConnectionStringSetting = "CosmosDbConnectionString")] DocumentClient client,
         ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
-            
-            if(recipes != null) {
-                return new OkObjectResult(recipes);
+
+            var searchterm = req.Query["searchterm"];
+            if (string.IsNullOrWhiteSpace(searchterm))
+            {
+                return (ActionResult)new NotFoundResult();
             }
 
-            return new NotFoundResult();
+            Uri collectionUri = UriFactory.CreateDocumentCollectionUri("mydb", "myfirstcontainer");
+
+            log.LogInformation($"Searching for: {searchterm}");
+
+            IDocumentQuery<Recipe> query = client.CreateDocumentQuery<Recipe>(collectionUri, new FeedOptions { EnableCrossPartitionQuery = true })
+                .Where(p => p.Name.Contains(searchterm))
+                .AsDocumentQuery();
+
+            while (query.HasMoreResults)
+            {
+                foreach (Recipe result in await query.ExecuteNextAsync())
+                {
+                    log.LogInformation(result.Name);
+                }
+            }
+            return new OkObjectResult(query);
+
         }
 
-        [FunctionName("Testing")]
+
+
+        [FunctionName("AddDish")]
         public static async Task<IActionResult> AddDish(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "recipe")] HttpRequest req,
         [CosmosDB(
