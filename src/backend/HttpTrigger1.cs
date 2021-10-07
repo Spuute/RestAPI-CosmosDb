@@ -106,7 +106,8 @@ namespace lesson05
                 var newRecipe = new Recipe
                 {
                     Name = input.Name,
-                    test = input.test
+                    Description = input.Description,
+                    PhotoUrl = input.PhotoUrl
                 };
 
                 await recipe.AddAsync(newRecipe);
