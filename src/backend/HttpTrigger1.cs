@@ -20,7 +20,7 @@ namespace lesson05
     {
         [FunctionName("dish")]
         public static async Task<IActionResult> GetDish(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "recipes")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "recipe")] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",
@@ -51,12 +51,11 @@ namespace lesson05
                 }
             }
             return new OkObjectResult(query);
-
         }
 
-        [FunctionName("disha")]
+        [FunctionName("dishes")]
         public static async Task<IActionResult> GetDishes(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "recipe")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "recipes")] HttpRequest req,
         [CosmosDB(
         databaseName: "mydb",
         collectionName: "myfirstcontainer",

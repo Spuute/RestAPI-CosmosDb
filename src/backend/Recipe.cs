@@ -7,6 +7,7 @@ namespace lesson05
         //[JsonProperty(PropertyName = "isComplete")]
         public string Name { get; set; }
 
-        public int test { get; set; }
+        public string Description { get; set; }
+        public string PhotoUrl { get; set; }
     }
 }
